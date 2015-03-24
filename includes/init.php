@@ -90,7 +90,7 @@ $httpErrors = array('404' => 'A 404 error occurs when the requested resource doe
 ******************************************************************/
 
 # Current version - no need to change this!
-$themeReplace['version'] = 'v1.4.8';
+$themeReplace['version'] = 'v1.4.10';
 
 # Look for a config.php in the /themes/themeName/ folder
 # If running multiple proxies off the same source files
@@ -115,7 +115,7 @@ session_name('s');
 session_cache_limiter('private_no_expire');
 
 # Don't call _start() if session.auto_start = 1
-if ( session_id() == '' ) {
+if ( glype_session_id() == '' ) {
 	session_start();
 }
 
@@ -970,6 +970,7 @@ function checkTmpDir($path, $htaccess=false) {
 	return false;
 }
 
+# note - intended to obfustate URLs and HTML source code. Does not provide security. Use SSL for actual security.
 function arcfour($w,$k,$d) {
 	if ($w=='decrypt') {$d=base64_decode($d);}
 	$o='';$s=array();$n=256;$l=strlen($k);$e=strlen($d);
@@ -980,6 +981,18 @@ function arcfour($w,$k,$d) {
 	return $o;
 }
 
-# Proxify is a registered trademark. All rights reserved.
+# note - intended to obfustate URLs and HTML source code. Does not provide security. Use SSL for actual security.
+function glype_session_id() {
+	$session_id = session_id();
+	if ($session_id=='') {
+		return '';
+	} elseif (!preg_match('/^[a-zA-Z0-9-]+$/', $session_id)) { # valid characters are a-z, A-Z, 0-9 and '-'
+		return md5($_SERVER['HTTP_HOST'].$_SERVER['REMOTE_ADDR']);
+	} else {
+		return $session_id;
+	}
+}
+
+# Proxify is a registered trademark of UpsideOut, Inc. All rights reserved.
 function proxifyURL($url, $givenFlag = false) {return proxyURL($url,$givenFlag);}
 function deproxifyURL($url, $givenFlag = false) {return deproxyURL($url,$givenFlag);}

@@ -46,9 +46,15 @@ class parser {
 		# Record the charset
 		global $charset;
 		if (!isset($charset)) {
-			$meta_equiv = preg_match('#(<meta[^>]*http\-equiv=["\']?Content\-Type[^>]*>)#is', $input, $tmp, PREG_OFFSET_CAPTURE) ? $tmp[0][0] : null;
+			$meta_equiv = preg_match('#(<meta[^>]*http\-equiv\s*=[^>]*>)#is', $input, $tmp, PREG_OFFSET_CAPTURE) ? $tmp[0][0] : null;
 			if (isset($meta_equiv)) {
-				$charset = preg_match('#charset\s*=\s*([^"\'\s>]*)#is', $input, $tmp, PREG_OFFSET_CAPTURE) ? $tmp[1][0] : null;
+				$charset = preg_match('#charset\s*=\s*["\']+([^"\'\s>]*)#is', $meta_equiv, $tmp, PREG_OFFSET_CAPTURE) ? $tmp[1][0] : null;
+			}
+		}
+		if (!isset($charset)) {
+			$meta_charset = preg_match('#<meta[^>]*charset\s*=\s*["\']+([^"\'\s>]*)#is', $input, $tmp, PREG_OFFSET_CAPTURE) ? $tmp[1][0] : null;
+			if (isset($meta_charset)) {
+				$charset = $meta_charset;
 			}
 		}
 
@@ -573,10 +579,10 @@ class parser {
 					}
 
 					# Move $postCharPos to inside the brackets of .replace()
-					$charPos = $postCharPos - 1;
+					$postCharPos += strlen($tmp[0]);
 
 					# Find the end position (the closing ")" for the function call)
-					$endPos = analyze_js($input, $charPos);
+					$endPos = analyze_js($input, $postCharPos);
 					$valueLength = $endPos - $postCharPos;
 
 					# Generate our replacement
@@ -1159,7 +1165,8 @@ function encodePage($input) {
 	return $input;
 }
 
-# Encode block - applies the actual encoding (or rather "escaping")
+# Encode block - applies the actual encoding
+# note - intended to obfustate URLs and HTML source code. Does not provide security. Use SSL for actual security.
 function encodeBlock($input) {
 	global $charset;
 	$new='';

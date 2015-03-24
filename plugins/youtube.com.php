@@ -52,9 +52,7 @@ function postParse($input, $type) {
 	switch($type) {
 		case 'html':
 
-			if(!defined('videourl')) {
-				$html = '<div style="color:#FFF;font-size:24px">This video cannot be displayed.</div>';
-			} else {
+			if(defined('videourl')) {
 
 				# Create URL to JW Player
 				$player_url = GLYPE_URL . '/player.swf';
@@ -64,10 +62,9 @@ function postParse($input, $type) {
 				# Generate HTML for the flash object with our new FLV URL
 				$html = "<embed src=\"{$player_url}\" width=\"640\" height=\"360\" bgcolor=\"000000\" allowscriptaccess=\"always\" allowfullscreen=\"true\" type=\"application/x-shockwave-flash\" flashvars=\"width=640&height=360&type=video&fullscreen=true&volume=100&autostart=true&file=$flvUrl\" />";
 
+				# Replace video player
+				$input = preg_replace('#<div id="player-api"([^>]*)>.*<div class="clear"#s', '<div id="player-api"$1>'.$html.'</div></div><div class="clear"', $input, 1);
 			}
-
-			# Replace video player
-			$input = preg_replace('#<div id="player-api"([^>]*)>.*<div id="playlist-tray#s', '<div id="player-api"$1>'.$html.'</div><div id="playlist-tray', $input, 1);
 
 		break;
 	}

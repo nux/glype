@@ -51,7 +51,7 @@ OUT;
 if ( $CONFIG['cookies_on_server'] ) {
 
 	# Check cookie file exists
-	if ( file_exists($cookieFile = $CONFIG['cookies_folder'] . session_id()) ) {
+	if ( file_exists($cookieFile = $CONFIG['cookies_folder'] . glype_session_id()) ) {
 
 		# Load into array
 		if ( $cookieLine = file($cookieFile, FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES) ) {

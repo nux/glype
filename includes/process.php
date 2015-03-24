@@ -131,7 +131,7 @@ switch ( $action ) {
 		if ( $CONFIG['cookies_on_server'] ) {
 
 			# Look for cookie file and check writable
-			if ( is_writable($file = $CONFIG['cookies_folder'] . session_id()) ) {
+			if ( is_writable($file = $CONFIG['cookies_folder'] . glype_session_id()) ) {
 
 				# Delete it
 				unlink($file);
@@ -186,7 +186,7 @@ switch ( $action ) {
 			if ( $CONFIG['cookies_on_server'] ) {
 
 				# Server-side storage. Look for cookie file.
-				if ( file_exists($cookieFile = $CONFIG['cookies_folder'] . session_id()) && ( $file = file($cookieFile) ) ) {
+				if ( file_exists($cookieFile = $CONFIG['cookies_folder'] . glype_session_id()) && ( $file = file($cookieFile) ) ) {
 
 					# Loop through lines, looking for cookies to delete
 					foreach ( $file as $id => $line ) {

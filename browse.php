@@ -96,15 +96,34 @@ $URL = array(
 # seems to 'fix' the majority of cases.
 $URL['href'] = str_replace(' ', '%20', $toLoad);
 
-# Protect LAN from access through proxy (protected addresses copied from PHProxy)
-if ( preg_match('#^(?:127\.|192\.168\.|10\.|172\.(?:1[6-9]|2[0-9]|3[01])\.|localhost)#i', $URL['host']) ) {
+
+# Add any supplied authentication information to our auth array
+if ($URL['auth']) {
+	$_SESSION['authenticate'][$URL['scheme_host']] = $URL['auth'];
+}
+
+
+
+/*****************************************************************
+* Protect LAN from access through proxy
+* This does not stop all hostnames that resolve to LAN IPs
+* unless the line containing "gethostbyname" is uncommented below
+******************************************************************/
+if (preg_match('#^localhost#i', $URL['host'])) {
 	error('banned_site', $URL['host']);
 }
 
-# Add any supplied authentication information to our auth array
-if ( $URL['auth'] ) {
-	$_SESSION['authenticate'][$URL['scheme_host']] = $URL['auth'];
+$host = $URL['host'];
+
+#$host = gethostbyname($host); # uncomment for more complete protection
+
+if (preg_match('#^\d+$#', $host)) { # decimal IPs
+	$host = implode('.', array($host>>24&255, $host>>16&255, $host>>8&255, $host&255));
 }
+if (preg_match('#^(0|10|127|169\.254|192\.168|172\.(?:1[6-9]|2[0-9]|3[01])|2[2-5][0-9])\.#', $host)) { # special use netblocks
+	error('banned_site', $host);
+}
+
 
 
 /*****************************************************************
@@ -459,7 +478,7 @@ if ( $options['allowCookies'] ) {
 		if ( $s = checkTmpDir($CONFIG['cookies_folder'], 'Deny from all') ) {
 
 			# Set cURL to use this as the cookie jar
-			$toSet[CURLOPT_COOKIEFILE] = $toSet[CURLOPT_COOKIEJAR] = $CONFIG['cookies_folder'] . session_id();
+			$toSet[CURLOPT_COOKIEFILE] = $toSet[CURLOPT_COOKIEJAR] = $CONFIG['cookies_folder'] . glype_session_id();
 
 		}
 
@@ -628,6 +647,11 @@ if ( $options['allowCookies'] ) {
 ******************************************************************/
 
 if ( ! empty($_POST) ) {
+
+	# enable backward compatibility with cURL's @ option for uploading files in PHP 5.5 and 5.6
+	if (version_compare(PHP_VERSION, '5.5')>=0) {
+		$toSet[CURLOPT_SAFE_UPLOAD] = false;
+	}
 
 	# Attempt to get raw POST from the input wrapper
 	if ( ! ($tmp = file_get_contents('php://input')) ) {

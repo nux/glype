@@ -1,4 +1,4 @@
-<?
+<?php
 /*******************************************************************
 * Glype is copyright and trademark 2007-2014 UpsideOut, Inc. d/b/a Glype
 * and/or its licensors, successors and assigners. All rights reserved.
@@ -7,11 +7,13 @@
 * http://www.glype.com/license.php
 ******************************************************************/
 
-define('mobilemail',proxyURL('http://m.yahoo.com/mail'));
-if(stripos($toLoad,'mail.yahoo.com')){header('Location: '.mobilemail);exit;}
-function preParse($html,$type){
-	if($type=='html') {
-		$html = preg_replace('#r/(m6|lk|l6|m7|m2|l4)#', mobilemail, $html);
+function preParse($input, $type) {
+	switch($type) {
+		case 'css':
+			$input = preg_replace('#masthead\-positioner\{[^\}]+\}#s', 'masthead-positioner{position:absolute;top:100;right:0;left:0;z-index:1999999999}', $input);
+
+		break;
 	}
-	return $html;
+
+	return $input;
 }

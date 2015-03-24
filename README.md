@@ -1,1 +1,0 @@
-Storing Glype releases.

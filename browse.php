@@ -1,6 +1,6 @@
 <?php
 /*******************************************************************
-* Glype is copyright and trademark 2007-2014 UpsideOut, Inc. d/b/a Glype
+* Glype is copyright and trademark 2007-2015 UpsideOut, Inc. d/b/a Glype
 * and/or its licensors, successors and assigners. All rights reserved.
 *
 * Use of Glype is subject to the terms of the Software License Agreement.
@@ -1063,6 +1063,11 @@ class Request {
 				$this->parseType = $types[$mime];
 			}
 
+			# validate mimetypes
+			if (!preg_match('#^(application|audio|image|text|video)/#i', $mime)) {
+				header('Content-Type: text/plain');
+			}
+
 		} else {
 
 			# Tell our read body function to 'sniff' the data to determine type
@@ -1174,21 +1179,14 @@ class Request {
 
 	private function firstBody($data) {
 
-		# Do we want to sniff the data? Determines if ascii or binary.
+		# Do we want to sniff the data to gues the mimetype?
 		if ( $this->sniff ) {
-
-			# Take a sample of 100 chars chosen at random
-			$length = strlen($data);
-			$sample = $length < 150 ? $data : substr($data, rand(0, $length-100), 100);
-
-			# Assume ASCII if more than 95% of bytes are "normal" text characters
-			if ( strlen(preg_replace('#[^A-Z0-9\!"$%\^&*\(\)=\+\\\\|\[\]\{\};:\\\'\@\#~,\.<>/\?\-]#i', '', $sample)) > 95 ) {
-
-				# To do: expand this to detect if html/js/css
+			if (preg_match('#<html\b.*<head\b#i', $data)) {
+				header('Content-Type: text/html');
 				$this->parseType = 'html';
-
+			} else {
+				header('Content-Type: text/plain');
 			}
-
 		}
 
 		# Now we know if parsing is required, we can forward content-length

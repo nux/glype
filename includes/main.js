@@ -1,5 +1,5 @@
 /*******************************************************************
-* Glype is copyright and trademark 2007-2014 UpsideOut, Inc. d/b/a Glype
+* Glype is copyright and trademark 2007-2015 UpsideOut, Inc. d/b/a Glype
 * and/or its licensors, successors and assigners. All rights reserved.
 *
 * Use of Glype is subject to the terms of the Software License Agreement.
@@ -16,8 +16,8 @@
 
 if(parent.frames.length==0) {
 	x=location.href;
-	if (x.indexOf('&f=frame')!=-1||x.indexOf('&frame')!=-1) {
-		x=x.replace(/&f=frame/,'');
+	if (x.indexOf('f=frame')!=-1||x.indexOf('&frame')!=-1) {
+		x=x.replace(/f=frame/,'');
 		x=x.replace(/&frame/,'');
 		parent.location.href=x;
 	}

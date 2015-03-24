@@ -1,6 +1,6 @@
 <?php
 /*******************************************************************
-* Glype is copyright and trademark 2007-2014 UpsideOut, Inc. d/b/a Glype
+* Glype is copyright and trademark 2007-2015 UpsideOut, Inc. d/b/a Glype
 * and/or its licensors, successors and assigners. All rights reserved.
 *
 * Use of Glype is subject to the terms of the Software License Agreement.
@@ -90,7 +90,7 @@ $httpErrors = array('404' => 'A 404 error occurs when the requested resource doe
 ******************************************************************/
 
 # Current version - no need to change this!
-$themeReplace['version'] = 'v1.4.10';
+$themeReplace['version'] = 'v1.4.13';
 
 # Look for a config.php in the /themes/themeName/ folder
 # If running multiple proxies off the same source files
@@ -458,11 +458,13 @@ function deproxyURL($url, $verifyUnique=false) {
 
 	}
 
-	# Remove URL encoding (returns special chars such as /)
-	$url = rawurldecode($url);
+	# No :// here means url is encoded or encrypted.
+	if (!strpos($url, '://')) {
+		$url = rawurldecode($url);
+	}
 
-	# Is it encoded? Presence of :# means unencoded.
-	if ( ! strpos($url, '://') ) {
+	# No :// here means url is encrypted.
+	if (!strpos($url, '://')) {
 
 		# Decrypt
 		if ( isset($GLOBALS['unique_salt']) ) {
